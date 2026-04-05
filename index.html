@@ -1,23 +1,513 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Your Name | Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sri Harsha Peetha — Data Scientist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #64c8ff;
+    --cyan-dim: rgba(100,200,255,0.12);
+    --cyan-border: rgba(100,200,255,0.2);
+    --purple: #a78bfa;
+    --green: #4ade80;
+    --bg: #070b16;
+    --bg2: #0d1220;
+    --bg3: #111827;
+    --text: #e8f4f8;
+    --text-dim: rgba(232,244,248,0.5);
+    --text-dimmer: rgba(232,244,248,0.25);
+    --border: rgba(100,200,255,0.12);
+    --border-bright: rgba(100,200,255,0.35);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; cursor: none; }
+
+  .cursor { position: fixed; width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .2s,height .2s,background .2s; mix-blend-mode: screen; }
+  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid var(--cyan-border); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width .3s,height .3s,border-color .3s; }
+  body:has(a:hover) .cursor { width: 16px; height: 16px; background: var(--purple); }
+  body:has(a:hover) .cursor-ring { width: 52px; height: 52px; border-color: rgba(167,139,250,.4); }
+
+  body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px); pointer-events: none; z-index: 100; }
+  body::after { content: ''; position: fixed; inset: -200%; width: 400%; height: 400%; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E"); opacity: .35; pointer-events: none; z-index: 101; animation: grain .8s steps(1) infinite; }
+  @keyframes grain { 0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(-5%,2%)} 30%{transform:translate(3%,-1%)} 40%{transform:translate(-1%,5%)} 50%{transform:translate(-4%,3%)} 60%{transform:translate(2%,-4%)} 70%{transform:translate(5%,1%)} 80%{transform:translate(-3%,4%)} 90%{transform:translate(4%,-2%)} }
+
+  .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(100,200,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(100,200,255,.04) 1px,transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+  .grid-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%,rgba(100,200,255,.07) 0%,transparent 70%); }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 64px; background: rgba(7,11,22,.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'Space Mono',monospace; font-size: 13px; color: var(--cyan); letter-spacing: 4px; text-decoration: none; }
+  .nav-logo span { color: var(--text-dimmer); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--text-dim); text-decoration: none; letter-spacing: 2px; text-transform: uppercase; transition: color .2s; position: relative; }
+  .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--cyan); transition: width .3s; }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-status { display: flex; align-items: center; gap: 8px; font-family: 'Space Mono',monospace; font-size: 10px; color: var(--green); letter-spacing: 1px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pdot 2s ease-in-out infinite; }
+  @keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+
+  section { position: relative; z-index: 10; }
+
+  /* HERO */
+  #hero { min-height: 100vh; display: flex; align-items: center; padding: 64px 48px 0; overflow: hidden; }
+  .hero-inner { max-width: 1100px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: center; }
+  .hero-tag { font-family: 'Space Mono',monospace; font-size: 11px; color: var(--cyan); letter-spacing: 4px; margin-bottom: 24px; opacity: 0; animation: fadeUp .6s .2s forwards; }
+  .hero-tag::before { content: '// '; color: var(--text-dimmer); }
+  .hero-name { font-family: 'Syne',sans-serif; font-size: clamp(48px,5.5vw,76px); font-weight: 800; line-height: 1.0; color: var(--text); margin-bottom: 8px; opacity: 0; animation: fadeUp .6s .35s forwards; }
+  .hero-name .hl { color: transparent; -webkit-text-stroke: 1.5px var(--cyan); display: block; }
+  .hero-name:hover .hl { animation: glitch .4s steps(1) forwards; }
+  @keyframes glitch { 0%{text-shadow:none} 20%{text-shadow:2px 0 var(--purple),-2px 0 var(--cyan)} 40%{text-shadow:-3px 0 var(--cyan),3px 0 var(--purple)} 60%{text-shadow:2px 0 var(--purple),-2px 0 #ff5f57} 80%{text-shadow:-1px 0 var(--cyan),1px 0 var(--purple)} 100%{text-shadow:none} }
+  .hero-roles { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; opacity: 0; animation: fadeUp .6s .5s forwards; }
+  .hero-role { font-family: 'Space Mono',monospace; font-size: 10px; padding: 5px 14px; border: 1px solid var(--border-bright); color: var(--cyan); border-radius: 2px; letter-spacing: 1.5px; background: var(--cyan-dim); }
+  .hero-desc { font-size: 15px; color: var(--text-dim); line-height: 1.85; max-width: 520px; margin-bottom: 38px; opacity: 0; animation: fadeUp .6s .65s forwards; }
+  .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; opacity: 0; animation: fadeUp .6s .8s forwards; }
+  .btn-primary { font-family: 'Space Mono',monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 14px 28px; background: var(--cyan); color: var(--bg); text-decoration: none; border-radius: 2px; font-weight: 700; transition: box-shadow .2s,transform .2s; }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(100,200,255,.4); transform: translateY(-1px); }
+  .btn-secondary { font-family: 'Space Mono',monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 13px 28px; background: transparent; color: var(--cyan); border: 1px solid var(--border-bright); text-decoration: none; border-radius: 2px; transition: background .2s,box-shadow .2s; }
+  .btn-secondary:hover { background: var(--cyan-dim); box-shadow: 0 0 20px rgba(100,200,255,.15); }
+
+  /* Terminal */
+  .hero-terminal { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; opacity: 0; animation: fadeUp .7s .5s forwards; box-shadow: 0 0 60px rgba(100,200,255,.08); }
+  .t-header { background: var(--bg3); padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-red{background:#ff5f57} .t-yellow{background:#febc2e} .t-tgreen{background:#28c840}
+  .t-title { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--text-dimmer); margin-left: 8px; letter-spacing: 1px; }
+  .t-body { padding: 22px; font-family: 'Space Mono',monospace; font-size: 11.5px; line-height: 2; }
+  .tp{color:var(--cyan)} .tc{color:var(--text-dimmer)} .tk{color:var(--purple)} .tv{color:var(--green)} .ts{color:#f9a8d4}
+  .t-cursor { display: inline-block; width: 8px; height: 14px; background: var(--cyan); animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: fadeIn 1s 1.6s forwards; }
+  .scroll-hint span { font-family: 'Space Mono',monospace; font-size: 9px; color: var(--text-dimmer); letter-spacing: 3px; text-transform: uppercase; }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom,var(--cyan),transparent); animation: sdrop 1.5s ease-in-out infinite; }
+  @keyframes sdrop { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+  /* SECTION HEADER */
+  .sh { max-width: 1100px; margin: 0 auto 52px; padding: 0 48px; }
+  .sh-eye { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--cyan); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+  .sh-eye::before { content: ''; display: block; width: 32px; height: 1px; background: var(--cyan); }
+  .sh-title { font-family: 'Syne',sans-serif; font-size: clamp(28px,3.5vw,44px); font-weight: 800; color: var(--text); line-height: 1.1; }
+  .sh-title .dim { color: var(--text-dimmer); }
+
+  /* PROJECTS */
+  #projects { padding: 120px 0; }
+  .pg { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .pc { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 30px; position: relative; overflow: hidden; transition: border-color .3s,box-shadow .3s; }
+  .pc::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--cyan),var(--purple)); transform: scaleX(0); transform-origin: left; transition: transform .4s; }
+  .pc:hover { border-color: var(--border-bright); box-shadow: 0 8px 40px rgba(100,200,255,.08); }
+  .pc:hover::before { transform: scaleX(1); }
+  .pc.feat { grid-column: 1/-1; display: grid; grid-template-columns: 1fr 260px; gap: 40px; align-items: start; }
+  .pt { font-family: 'Syne',sans-serif; font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 7px; line-height: 1.2; }
+  .ps { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; margin-bottom: 14px; }
+  .pd { font-size: 14px; color: var(--text-dim); line-height: 1.8; margin-bottom: 20px; }
+  .ptags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 20px; }
+  .ptag { font-family: 'Space Mono',monospace; font-size: 9px; padding: 3px 9px; border: 1px solid var(--border); color: var(--text-dim); border-radius: 2px; letter-spacing: 1px; }
+  .plink { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--cyan); text-decoration: none; letter-spacing: 1.5px; display: inline-flex; align-items: center; gap: 8px; transition: gap .2s; }
+  .plink:hover { gap: 14px; }
+  .plink::after { content: '→'; }
+  .pm { display: flex; flex-direction: column; gap: 14px; }
+  .mr { display: flex; flex-direction: column; gap: 5px; }
+  .ml { font-family: 'Space Mono',monospace; font-size: 9px; color: var(--text-dimmer); letter-spacing: 1.5px; display: flex; justify-content: space-between; }
+  .ml span { color: var(--cyan); }
+  .mb { height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; overflow: hidden; }
+  .mf { height: 100%; border-radius: 2px; background: linear-gradient(90deg,var(--cyan),var(--purple)); transform: scaleX(0); transform-origin: left; transition: transform 1s ease; }
+
+  /* SKILLS */
+  #skills { padding: 120px 0; background: var(--bg2); }
+  .si { max-width: 1100px; margin: 0 auto; padding: 0 48px; }
+  .sg-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+  .sg { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 28px; transition: border-color .2s; }
+  .sg:hover { border-color: var(--border-bright); }
+  .sg-icon { font-size: 18px; margin-bottom: 12px; }
+  .sg-title { font-family: 'Syne',sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 18px; }
+  .sl { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .si-item { display: flex; flex-direction: column; gap: 5px; }
+  .snr { display: flex; justify-content: space-between; align-items: center; }
+  .sn { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+  .sp { font-family: 'Space Mono',monospace; font-size: 9px; color: var(--cyan); }
+  .sbar { height: 2px; background: rgba(255,255,255,.06); border-radius: 1px; overflow: hidden; }
+  .sfill { height: 100%; background: linear-gradient(90deg,var(--cyan),var(--purple)); border-radius: 1px; transform: scaleX(0); transform-origin: left; transition: transform 1.2s ease; }
+
+  /* ABOUT */
+  #about { padding: 120px 0; }
+  .ai { max-width: 1100px; margin: 0 auto; padding: 0 48px; display: grid; grid-template-columns: 1fr 360px; gap: 72px; align-items: start; }
+  .ab { font-size: 15px; color: var(--text-dim); line-height: 1.9; margin-bottom: 26px; }
+  .ab strong { color: var(--cyan); font-weight: 500; }
+  .ahls { display: flex; flex-direction: column; gap: 13px; }
+  .ahl { display: flex; align-items: flex-start; gap: 14px; padding: 15px 18px; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; }
+  .ahl-icon { color: var(--cyan); font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+  .ahl-title { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; margin-bottom: 4px; }
+  .ahl-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+  .acard { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; position: sticky; top: 90px; }
+  .acard-h { background: var(--bg3); padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .acard-ht { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--text-dimmer); letter-spacing: 2px; }
+  .acard-b { padding: 22px; }
+  .edu { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .edu:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .edu-d { font-family: 'Syne',sans-serif; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .edu-s { font-family: 'Space Mono',monospace; font-size: 9px; color: var(--cyan); letter-spacing: 1px; margin-bottom: 5px; }
+  .edu-t { font-size: 12px; color: var(--text-dimmer); line-height: 1.6; }
+  .badge { display: inline-block; margin-top: 7px; font-family: 'Space Mono',monospace; font-size: 9px; padding: 3px 10px; background: rgba(74,222,128,.12); border: 1px solid rgba(74,222,128,.3); color: var(--green); border-radius: 2px; letter-spacing: 1px; }
+  .badge.ip { background: rgba(100,200,255,.1); border-color: rgba(100,200,255,.3); color: var(--cyan); }
+
+  /* CONTACT */
+  #contact { padding: 120px 0; background: var(--bg2); }
+  .ci { max-width: 680px; margin: 0 auto; padding: 0 48px; }
+  .c-intro { font-size: 15px; color: var(--text-dim); line-height: 1.85; margin-bottom: 36px; }
+  .clinks { display: flex; flex-direction: column; gap: 13px; }
+  .clink { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; text-decoration: none; transition: border-color .2s,background .2s; color: inherit; }
+  .clink:hover { border-color: var(--border-bright); background: var(--cyan-dim); }
+  .clink-icon { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: var(--cyan-dim); border: 1px solid var(--border-bright); border-radius: 4px; font-size: 13px; flex-shrink: 0; }
+  .clink-label { font-family: 'Space Mono',monospace; font-size: 9px; color: var(--text-dimmer); letter-spacing: 2px; margin-bottom: 2px; }
+  .clink-val { font-size: 14px; color: var(--text); }
+  .cv-note { font-family: 'Space Mono',monospace; font-size: 9px; color: var(--text-dimmer); letter-spacing: 1px; margin-top: 18px; padding: 13px 16px; border: 1px dashed var(--border); border-radius: 4px; line-height: 1.8; }
+  .cv-note span { color: var(--cyan); }
+
+  footer { padding: 30px 48px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 10; }
+  .fl { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--text-dimmer); letter-spacing: 2px; }
+  .fr { font-family: 'Space Mono',monospace; font-size: 10px; color: var(--text-dimmer); letter-spacing: 1px; }
+  .fr span { color: var(--cyan); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  @media(max-width:900px){
+    nav{padding:0 24px} .nav-links{display:none}
+    #hero{padding:80px 24px 0} .hero-inner{grid-template-columns:1fr;gap:36px} .hero-terminal{display:none}
+    .sh,.si,.ci{padding-left:24px;padding-right:24px}
+    .pg{padding:0 24px;grid-template-columns:1fr} .pc.feat{grid-template-columns:1fr}
+    .sg-grid{grid-template-columns:1fr}
+    .ai{padding:0 24px;grid-template-columns:1fr} .acard{position:static}
+    footer{padding:22px;flex-direction:column;gap:8px;text-align:center}
+  }
+</style>
 </head>
 <body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
 
-<h1>👋 Hi, I'm Your Name</h1>
-<p>Data Scientist | ML Engineer</p>
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">SH<span>.</span>P</a>
+  <ul class="nav-links">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-status"><div class="status-dot"></div>AVAILABLE FOR HIRE</div>
+</nav>
 
-<h2>🚀 Projects</h2>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">DATA SCIENTIST & ANALYST</div>
+      <h1 class="hero-name">Sri Harsha<span class="hl">Peetha.</span></h1>
+      <div class="hero-roles">
+        <span class="hero-role">DATA SCIENTIST</span>
+        <span class="hero-role">DATA ANALYST</span>
+        <span class="hero-role">BI ANALYST</span>
+      </div>
+      <p class="hero-desc">MSc Data Science & Analytics <strong style="color:var(--cyan)">with Distinction</strong> — University of Hertfordshire. I build end-to-end ML pipelines, deploy to Azure, and translate complex data into clear business decisions.</p>
+      <div class="hero-ctas">
+        <a href="#projects" class="btn-primary">View Projects</a>
+        <a href="#contact" class="btn-secondary">Contact Me</a>
+      </div>
+    </div>
 
-<div class="project">
-    <h3>Customer Churn Prediction</h3>
-    <p>End-to-end ML project with Streamlit UI</p>
-    
-    <a href="YOUR_STREAMLIT_LINK" target="_blank">🔗 Live App</a><br>
-    <a href="YOUR_GITHUB_REPO" target="_blank">💻 Source Code</a>
-</div>
+    <div class="hero-terminal">
+      <div class="t-header">
+        <div class="t-dot t-red"></div><div class="t-dot t-yellow"></div><div class="t-dot t-tgreen"></div>
+        <span class="t-title">sri_harsha_peetha.py</span>
+      </div>
+      <div class="t-body" id="tlines">
+        <div><span class="tp">❯</span> python profile.py</div>
+        <div>&nbsp;</div>
+        <div><span class="tc"># Initialising profile...</span></div>
+        <div>&nbsp;</div>
+        <div>{</div>
+        <div>&nbsp;&nbsp;<span class="tk">"name"</span>: <span class="ts">"Sri Harsha Peetha"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="tk">"location"</span>: <span class="ts">"Hatfield, UK"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="tk">"degree"</span>: <span class="ts">"MSc Data Science"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="tk">"grade"</span>: <span class="tv">"Distinction"</span>,</div>
+        <div>&nbsp;&nbsp;<span class="tk">"stack"</span>: [<span class="ts">"Python"</span>, <span class="ts">"SQL"</span>, <span class="ts">"R"</span>,</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ts">"XGBoost"</span>, <span class="ts">"Power BI"</span>, <span class="ts">"Azure"</span>],</div>
+        <div>&nbsp;&nbsp;<span class="tk">"right_to_work_uk"</span>: <span class="tv">True</span>,</div>
+        <div>&nbsp;&nbsp;<span class="tk">"open_to_work"</span>: <span class="tv">True</span></div>
+        <div>}</div>
+        <div>&nbsp;</div>
+        <div><span class="tp">❯</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
 
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="sh">
+    <div class="sh-eye">Projects</div>
+    <h2 class="sh-title">Selected <span class="dim">Work</span></h2>
+  </div>
+  <div class="pg">
+
+    <!-- Featured: Churn -->
+    <div class="pc feat">
+      <div>
+        <h3 class="pt">Customer Churn Prediction</h3>
+        <div class="ps">END-TO-END ML · AZURE DEPLOYMENT · LIVE API</div>
+        <p class="pd">Full MLOps pipeline on the Kaggle Telco Churn dataset. Trained and benchmarked Logistic Regression, Random Forest, and XGBoost — selecting Logistic Regression for deployment based on best accuracy and F1. Tracked all experiments with MLflow and deployed a RESTful Flask API to Azure App Service (Linux, Python 3.10) using Gunicorn. Resolved Kudu environment dependency issues via a custom startup command.</p>
+        <div class="ptags">
+          <span class="ptag">Python</span><span class="ptag">Logistic Regression</span><span class="ptag">Random Forest</span>
+          <span class="ptag">XGBoost</span><span class="ptag">Scikit-learn</span><span class="ptag">MLflow</span>
+          <span class="ptag">Flask</span><span class="ptag">Azure App Service</span><span class="ptag">Gunicorn</span><span class="ptag">Git</span>
+        </div>
+        <!-- 🔗 Replace YOUR_USERNAME and YOUR_REPO with your real GitHub details -->
+        <a href="https://github.com/SriHarsha2698/churn_project" target="_blank" class="plink">View on GitHub</a>
+      </div>
+      <div class="pm">
+        <div class="mr"><div class="ml">Logistic Regression — deployed <span>Acc 76% · F1 0.77</span></div><div class="mb"><div class="mf" style="--t:.76"></div></div></div>
+        <div class="mr"><div class="ml">Random Forest <span>Acc 75% · Recall 82%</span></div><div class="mb"><div class="mf" style="--t:.75"></div></div></div>
+        <div class="mr"><div class="ml">XGBoost <span>Acc 72% · F1 0.73</span></div><div class="mb"><div class="mf" style="--t:.72"></div></div></div>
+        <div class="mr"><div class="ml">MLflow Tracking <span>✓ Active</span></div><div class="mb"><div class="mf" style="--t:1"></div></div></div>
+        <div class="mr"><div class="ml">Azure Deployment <span>X Inactive</span></div><div class="mb"><div class="mf" style="--t:1"></div></div></div>
+      </div>
+    </div>
+
+    <!-- Flood -->
+    <div class="pc">
+      <h3 class="pt">Flood Prediction — Ensemble ML</h3>
+      <div class="ps">MSC DISSERTATION</div>
+      <p class="pd">XGBoost achieved R² 95.51% and RMSE 0.0106 after hyperparameter tuning — outperforming LightGBM (R² 94.98%) and Random Forest (R² 78.51%). Feature importance analysis identified top environmental predictors, delivering actionable insights for disaster management stakeholders.</p>
+      <div class="ptags"><span class="ptag">Python</span><span class="ptag">XGBoost</span><span class="ptag">LightGBM</span><span class="ptag">Random Forest</span><span class="ptag">Scikit-learn</span><span class="ptag">Google Colab</span><span class="ptag">Agile</span></div>
+      <div style="margin-bottom:18px">
+        <div class="mr"><div class="ml">XGBoost R² <span>95.51%</span></div><div class="mb"><div class="mf" style="--t:.955"></div></div></div>
+        <div class="mr" style="margin-top:10px"><div class="ml">LightGBM R² <span>94.98%</span></div><div class="mb"><div class="mf" style="--t:.950"></div></div></div>
+        <div class="mr" style="margin-top:10px"><div class="ml">Random FOrest R² <span>78.51%</span></div><div class="mb"><div class="mf" style="--t:.785"></div></div></div>
+      </div>
+      <!-- 🔗 Replace YOUR_USERNAME and YOUR_REPO with your real GitHub details -->
+      <a href="https://github.com/SriHarsha2698/flood-prediction-ml" target="_blank" class="plink">View on GitHub</a>
+    </div>
+
+    <!-- Superstore BI -->
+    <div class="pc">
+      <h3 class="pt">Superstore Sales BI Dashboard</h3>
+      <div class="ps">POWER BI · DAX </div>
+      <p class="pd">Interactive Power BI dashboard on the Kaggle Superstore Sales dataset. Built DAX measures, drill-through filters, and dynamic slicers for self-service exploration by region, product category, and time period — replicating a production BI reporting environment.</p>
+      <div class="ptags"><span class="ptag">Power BI</span><span class="ptag">DAX</span><span class="ptag">Power Query</span><span class="ptag">Data Modelling</span><span class="ptag">KPI Reporting</span></div>
+      <!-- 🔗 Replace YOUR_USERNAME and YOUR_REPO with your real GitHub details -->
+      <a href="https://github.com/YOUR_USERNAME/superstore-powerbi-dashboard" target="_blank" class="plink">View on GitHub</a>
+    </div>
+
+    <!-- Heart Disease -->
+    <div class="pc">
+      <h3 class="pt">Heart Disease Risk Analysis</h3>
+      <div class="ps">HYPOTHESIS TESTING · R · GROUP PROJECT</div>
+      <p class="pd">Investigated the statistical association between EKG results and heart disease prevalence using chi-square proportion hypothesis testing in RStudio on a clinical dataset (n=303). Delivered clear statistical interpretation for both technical and non-technical audiences.</p>
+      <div class="ptags"><span class="ptag">R</span><span class="ptag">RStudio</span><span class="ptag">Chi-Square</span><span class="ptag">Hypothesis Testing</span><span class="ptag">Data Cleaning</span></div>
+      <!-- 🔗 Replace YOUR_USERNAME and YOUR_REPO with your real GitHub details -->
+      
+    </div>
+
+    <!-- Sentiment -->
+    <div class="pc">
+      <h3 class="pt">Text Sentiment Classification</h3>
+      <div class="ps">DIMENSIONALITY REDUCTION · DATA MINING</div>
+      <p class="pd">Preprocessed an 800-instance sentiment dataset using TF-IDF and Lovins stemming (1,199 features). Applied Random Projection to 900 features and evaluated the accuracy/efficiency trade-off across J48 and LibSVM classifiers — showing dimensionality reduction impact is algorithm-dependent.</p>
+      <div class="ptags"><span class="ptag">WEKA</span><span class="ptag">TF-IDF</span><span class="ptag">J48</span><span class="ptag">LibSVM</span><span class="ptag">Random Projection</span><span class="ptag">Data Mining</span></div>
+      <!-- 🔗 Replace YOUR_USERNAME and YOUR_REPO with your real GitHub details -->
+    </div>
+
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="sh" style="max-width:1100px;margin:0 auto 52px;padding:0 48px">
+    <div class="sh-eye">Skills</div>
+    <h2 class="sh-title">Technical <span class="dim">Stack</span></h2>
+  </div>
+  <div class="si">
+    <div class="sg-grid">
+      <div class="sg">
+        <div class="sg-icon">⬡</div>
+        <div class="sg-title">Languages & Libraries</div>
+        <ul class="sl">
+          <li class="si-item"><div class="snr"><span class="sn">Python</span><span class="sp">★★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.90"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">SQL (MySQL)</span><span class="sp">★★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.90"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">R / RStudio</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.60"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Pandas / NumPy</span><span class="sp">★★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.93"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Matplotlib / Seaborn</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.85"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Java</span><span class="sp">★★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.90"></div></div></li>
+        </ul>
+      </div>
+      <div class="sg">
+        <div class="sg-icon">◈</div>
+        <div class="sg-title">ML & Statistics</div>
+        <ul class="sl">
+          <li class="si-item"><div class="snr"><span class="sn">Scikit-learn</span><span class="sp">★★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.92"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">XGBoost / LightGBM</span><span class="sp">★★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.90"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">MLflow</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.80"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Feature Engineering / ETL</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.82"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">TensorFlow / PyTorch</span><span class="sp">★★★</span></div><div class="sbar"><div class="sfill" style="--w:.58"></div></div></li>
+        </ul>
+      </div>
+      <div class="sg">
+        <div class="sg-icon">◉</div>
+        <div class="sg-title">Cloud, BI & Tools</div>
+        <ul class="sl">
+          <li class="si-item"><div class="snr"><span class="sn">Power BI & DAX</span><span class="sp">★★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.88"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Excel (PivotTables · Power Pivot)</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.85"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Azure App Service (Deployment)</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.82"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Flask API / Gunicorn</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.50"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">Git / GitHub</span><span class="sp">★★★★</span></div><div class="sbar"><div class="sfill" style="--w:.82"></div></div></li>
+          <li class="si-item"><div class="snr"><span class="sn">WEKA · Tableau (familiar)</span><span class="sp">★★★</span></div><div class="sbar"><div class="sfill" style="--w:.50"></div></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sh">
+    <div class="sh-eye">About</div>
+    <h2 class="sh-title">Who I <span class="dim">Am</span></h2>
+  </div>
+  <div class="ai">
+    <div>
+      <p class="ab">I'm a data professional based in <strong>Hatfield, UK</strong>, holding an MSc in Data Science & Analytics earned <strong>with Distinction</strong> from the University of Hertfordshire. My BTech background in mechanical engineering gives me a structured, mathematical mindset I now apply to building ML systems that solve real problems.</p>
+      <p class="ab">I work across the full data lifecycle — from data cleaning and statistical analysis through to model deployment on <strong>Azure</strong>. I'm equally comfortable building predictive models in Python and delivering <strong>Power BI</strong> dashboards that non-technical stakeholders can act on immediately.</p>
+      <p class="ab">Actively seeking roles as a <strong>Data Scientist</strong>, <strong>Data Analyst</strong>, or <strong>BI Analyst</strong>. Right to work in the UK. Open to hybrid and on-site roles.</p>
+      <div class="ahls">
+        <div class="ahl"><div class="ahl-icon">◈</div><div><div class="ahl-title">ENGINEERING BACKGROUND</div><div class="ahl-desc">BTech Mechanical Engineering — systems thinking and mathematical modelling applied directly to data science.</div></div></div>
+        <div class="ahl"><div class="ahl-icon">⬡</div><div><div class="ahl-title">END-TO-END MLOPS</div><div class="ahl-desc">From MLflow experiment tracking to live Flask API on Azure App Service — full production awareness, not just notebooks.</div></div></div>
+        <div class="ahl"><div class="ahl-icon">◉</div><div><div class="ahl-title">STAKEHOLDER COMMUNICATION</div><div class="ahl-desc">Experienced at translating statistical outputs into clear, actionable recommendations for mixed audiences.</div></div></div>
+      </div>
+    </div>
+    <div class="acard">
+      <div class="acard-h">
+        <span class="acard-ht">EDUCATION & CERTS</span>
+        <span class="status-dot"></span>
+      </div>
+      <div class="acard-b">
+        <div class="edu">
+          <div class="edu-d">MSc Data Science & Analytics</div>
+          <div class="edu-s">University of Hertfordshire · 2023–2025</div>
+          <div class="edu-t">Machine Learning, Data Mining, Applied Data Science, Statistical Methods, Team Research & Development.</div>
+          <span class="badge">DISTINCTION</span>
+        </div>
+        <div class="edu">
+          <div class="edu-d">BTech Mechanical Engineering</div>
+          <div class="edu-s">Dhanekula Institute of Engg & Tech · 2018–2022</div>
+          <div class="edu-t">Analytical and mathematical foundation directly transferable to data science.</div>
+        </div>
+        <div class="edu">
+          <div class="edu-d">Software Testing</div>
+          <div class="edu-s">QSpiders, Bangalore</div>
+          <div class="edu-t">Manual Testing · Selenium · Java · Python · MySQL</div>
+          <span class="badge">COMPLETED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sh" style="max-width:680px;margin:0 auto 52px;padding:0 48px">
+    <div class="sh-eye">Contact</div>
+    <h2 class="sh-title">Let's <span class="dim">Connect</span></h2>
+  </div>
+  <div class="ci">
+    <p class="c-intro">I'm actively looking for Data Scientist, Data Analyst, and BI Analyst roles across the UK. Right to work — no sponsorship required. Reach out any time.</p>
+    <div class="clinks">
+      <a href="mailto:sriharsha2698@gmail.com" class="clink">
+        <div class="clink-icon">✉</div>
+        <div><div class="clink-label">EMAIL</div><div class="clink-val">sriharsha2698@gmail.com</div></div>
+      </a>
+      <a href="tel:+447760647729" class="clink">
+        <div class="clink-icon">☏</div>
+        <div><div class="clink-label">PHONE</div><div class="clink-val">+44 0776 064 7729</div></div>
+      </a>
+      <a href="https://linkedin.com/in/sri-harsha-peetha" target="_blank" class="clink">
+        <div class="clink-icon">in</div>
+        <div><div class="clink-label">LINKEDIN</div><div class="clink-val">linkedin.com/in/sri-harsha-peetha</div></div>
+      </a>
+
+      <!-- 🔗 Replace YOUR_USERNAME with your actual GitHub username -->
+      <a href="https://github.com/SriHarsha2698" target="_blank" class="clink">
+        <div class="clink-icon">⌥</div>
+        <div><div class="clink-label">GITHUB</div><div class="clink-val">github.com/SriHarsha2698</div></div>
+      </a>
+
+      <!--
+        ══════════════════════════════════════════════════════════
+        CV DOWNLOAD — TWO OPTIONS:
+
+        OPTION A — GitHub Pages (simplest):
+          1. Rename your CV file to: Sri_Harsha_Peetha_CV.pdf
+          2. Put it in the same folder as this index.html on GitHub
+          3. The href below already points to it — no changes needed.
+
+        OPTION B — Google Drive:
+          1. Upload CV to Google Drive → share as "Anyone with link"
+          2. Copy the file ID from the share URL
+          3. Replace href with:
+             https://drive.google.com/uc?export=download&id=YOUR_FILE_ID
+          4. Remove the "download" attribute from the <a> tag
+        ══════════════════════════════════════════════════════════
+      -->
+      <a href="Sri_Harsha_Peetha_CV.pdf" download="Sri_Harsha_Peetha_CV.pdf" class="clink">
+        <div class="clink-icon">↓</div>
+        <div><div class="clink-label">CV / RESUME</div><div class="clink-val">Download PDF</div></div>
+      </a>
+    </div>
+
+    <div class="cv-note">
+      // <span>CV DOWNLOAD</span> — Place your CV as <span>Sri_Harsha_Peetha_CV.pdf</span> in the same GitHub repo folder as <span>index.html</span> and it will download automatically. See the HTML comment above for a Google Drive alternative.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fl">© 2025 SRI HARSHA PEETHA · HATFIELD, UK</div>
+  <div class="fr">RIGHT TO WORK IN THE <span>UK</span></div>
+</footer>
+
+<script>
+  // Cursor
+  const cur = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function anim(){cur.style.left=mx+'px';cur.style.top=my+'px';rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+
+  // Skill bars
+  const sObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const w=e.target.style.getPropertyValue('--w')||'.8';e.target.style.transform=`scaleX(${w})`;}}),{threshold:.3});
+  document.querySelectorAll('.sfill').forEach(f=>sObs.observe(f));
+
+  // Metric bars
+  const mObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const t=e.target.style.getPropertyValue('--t')||'.8';e.target.style.transform=`scaleX(${t})`;}}),{threshold:.2});
+  document.querySelectorAll('.mf').forEach(f=>mObs.observe(f));
+
+  // Scroll reveal
+  const rObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.style.transition='opacity .5s ease,transform .5s ease';setTimeout(()=>{e.target.style.opacity='1';e.target.style.transform='translateY(0)';},60);rObs.unobserve(e.target);}}),{threshold:.1});
+  document.querySelectorAll('.pc,.sg,.ahl,.clink').forEach(r=>{r.style.opacity='0';r.style.transform='translateY(18px)';rObs.observe(r);});
+
+  // Active nav
+  const nObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.nav-links a').forEach(a=>a.style.color='');const a=document.querySelector(`.nav-links a[href="#${e.target.id}"]`);if(a)a.style.color='var(--cyan)';}}),{threshold:.4});
+  document.querySelectorAll('section[id]').forEach(s=>nObs.observe(s));
+
+  // Terminal type-in
+  document.querySelectorAll('#tlines > div').forEach((l,i)=>{l.style.opacity='0';l.style.transform='translateX(-5px)';l.style.transition='opacity .2s,transform .2s';setTimeout(()=>{l.style.opacity='1';l.style.transform='translateX(0)';},700+i*110);});
+</script>
 </body>
 </html>
